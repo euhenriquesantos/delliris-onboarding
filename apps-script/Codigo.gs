@@ -32,7 +32,7 @@ function doGet() {
     .setMimeType(ContentService.MimeType.TEXT);
 }
 
-/** Endpoint para quando a página estiver hospedada fora do Apps Script. */
+/** Única entrada real: recebe as chamadas da ponte /onboarding/api. */
 function doPost(e) {
   var corpo;
   try {
@@ -43,7 +43,7 @@ function doPost(e) {
   return responderJson(api(corpo));
 }
 
-/** Chamada direta via google.script.run quando a página é servida pelo doGet. */
+/** Confere o segredo e despacha a ação. Nada roda antes dessa checagem. */
 function api(req) {
   try {
     if (!req || req.segredo !== SEGREDO) {
