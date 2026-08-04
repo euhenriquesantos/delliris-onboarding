@@ -7,7 +7,7 @@
  */
 
 const NOME_COOKIE = 'dio_sessao';
-const CAMINHO_COOKIE = '/onboarding';
+const CAMINHO_COOKIE = '/';
 const HORAS_PADRAO = 12;
 
 const enc = new TextEncoder();
@@ -167,7 +167,7 @@ export function paginaLogin() {
 <meta name="theme-color" content="#2b0000">
 <meta name="robots" content="noindex, nofollow">
 <title>Acesso — Dell'Iris</title>
-<link rel="icon" href="/onboarding/img/logo.webp">
+<link rel="icon" href="/img/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -241,7 +241,7 @@ export function paginaLogin() {
 </head>
 <body>
   <div class="painel">
-    <img class="capa" src="/onboarding/img/capa.png" alt="Dell'Iris — Comida que abraça!">
+    <img class="capa" src="/img/capa.png" alt="Dell'Iris — Comida que abraça!">
     <form class="caixa" id="form" autocomplete="off">
       <h1>Roteiro de inauguração</h1>
       <p class="sub">Digite o código de 6 dígitos para continuar.</p>
@@ -270,13 +270,13 @@ export function paginaLogin() {
     if (campo.value.length !== 6) { msg.textContent = 'O código tem 6 dígitos.'; return; }
     btn.disabled = true; msg.textContent = 'Verificando...';
     try {
-      const r = await fetch('/onboarding/entrar', {
+      const r = await fetch('/entrar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ codigo: campo.value })
       });
       const dados = await r.json();
-      if (dados.ok) { location.replace('/onboarding/'); return; }
+      if (dados.ok) { location.replace('/'); return; }
       campo.classList.add('erro');
       campo.value = '';
       msg.textContent = dados.erro || 'Código incorreto.';

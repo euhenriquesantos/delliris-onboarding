@@ -1,5 +1,5 @@
 /**
- * POST /onboarding/api
+ * POST /api
  *
  * Ponte entre o formulário e o Apps Script. Só chega aqui quem tem sessão
  * válida — quem confere isso é o roteador em index.js.

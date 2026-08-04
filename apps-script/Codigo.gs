@@ -14,7 +14,7 @@
 var PASTA_RAIZ_ID = '1cvRoef7v7e_yTWMQtB7f7F-m4nmrR_O_';
 
 // Precisa ser igual ao secret APPS_SCRIPT_SEGREDO da Cloudflare.
-// Só a ponte /onboarding/api conhece este valor — ele nunca chega ao navegador.
+// Só a ponte /api conhece este valor — ele nunca chega ao navegador.
 var SEGREDO = 'TROQUE-PELO-SEGREDO-GERADO';
 
 /* ------------------------------------------------------------------ */
@@ -32,7 +32,7 @@ function doGet() {
     .setMimeType(ContentService.MimeType.TEXT);
 }
 
-/** Única entrada real: recebe as chamadas da ponte /onboarding/api. */
+/** Única entrada real: recebe as chamadas da ponte /api. */
 function doPost(e) {
   var corpo;
   try {

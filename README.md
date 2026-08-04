@@ -1,17 +1,18 @@
 # Roteiro de inauguração — Dell'Iris
 
 Formulário de campo para a vistoria de inauguração de unidades. O funcionário abre
-`delliris.com.br/onboarding`, digita o código de acesso, preenche o roteiro, tira as fotos e
+`onboarding.delliris.com.br`, digita o código de acesso, preenche o roteiro, anexa as fotos e
 envia. O relatório em PDF e as fotos aparecem organizados no Google Drive.
 
 ## Como funciona
 
 ```
 Funcionário
-    │  delliris.com.br/onboarding  + código de 6 dígitos
+    │  onboarding.delliris.com.br  + código de 6 dígitos
     ▼
 Cloudflare Worker
     ├── src/index.js        roteia e aplica o portão: sem sessão, nada é entregue
+    │                       /  formulário   /entrar  código   /api  ponte   /img/*
     ├── src/entrar.js       confere o código, abre a sessão
     ├── src/api.js          ponte autenticada (guarda os segredos)
     ├── src/auth.js         assinatura da sessão, tela de código, limite de tentativas
@@ -32,6 +33,12 @@ O PDF é gerado no próprio celular (jsPDF) e as fotos são reduzidas para 1600p
 antes de subir — uma foto de 4 MB vira ~250 KB, que é o que faz o envio funcionar em 4G de loja.
 Cada foto sobe numa requisição separada, com barra de progresso.
 
+Cada seção tem dois botões de foto, e não um: o atributo `capture` abre a câmera direto e
+esconde a galeria, então com um botão só nunca dá para ter as duas opções. "Tirar foto" usa
+`capture`; "Da galeria" não usa e aceita várias de uma vez.
+
+Links antigos com `/onboarding` no caminho seguem funcionando por redirecionamento.
+
 ## Identidade visual
 
 Mesma linguagem da Central de Documentos: bordô `#630b0b` de fundo, `#2b0000` na barra
@@ -46,7 +53,7 @@ Duas adaptações conscientes, porque aqui o contexto é diferente de um site in
   marca não tem contraste suficiente sobre o bordô; ele segue sendo usado nos hovers, onde o
   fundo é branco.
 
-As imagens ficam em `src/img/` e são servidas pelo próprio Worker em `/onboarding/img/*` com
+As imagens ficam em `src/img/` e são servidas pelo próprio Worker em `/img/*` com
 cache de um ano. O logo do PDF vai embutido em base64 no HTML, porque o relatório é gerado no
 aparelho e não pode depender de baixar nada na hora.
 
@@ -130,18 +137,16 @@ Refaça o deploy depois de cadastrar tudo.
 
 ### 4. Domínio
 
-**Custom domains → Set up a domain → `delliris.com.br`**. Como o domínio já usa nameservers da
-Cloudflare, o registro é criado sozinho. O formulário fica em `delliris.com.br/onboarding`.
-
-Em **Settings → Domains & Routes → Add → Custom domain**, use `delliris.com.br`. O Worker responde
-em `/onboarding`; qualquer outro caminho devolve 404, então o domínio fica livre para um site
-principal no futuro (aí a rota vira `delliris.com.br/onboarding*`).
+Em **Settings → Domains & Routes → Add → Custom domain**, use `onboarding.delliris.com.br`.
+Como o domínio já usa nameservers da Cloudflare, o registro é criado sozinho. O Worker responde
+na raiz do subdomínio; qualquer outro caminho devolve 404, e o `delliris.com.br` fica livre
+para um site principal.
 
 ## Rodar localmente
 
 ```bash
 cp .dev.vars.example .dev.vars   # preencha; o .dev.vars nunca é versionado
-npx wrangler dev                 # abre em http://localhost:8787/onboarding
+npx wrangler dev                 # abre em http://localhost:8787
 ```
 
 Conferir o empacotamento sem publicar nada:

@@ -1,5 +1,5 @@
 /**
- * POST /onboarding/entrar  { codigo: "123456" }
+ * POST /entrar  { codigo: "123456" }
  *
  * Única porta de entrada. Confere o código contra o secret CODIGO_ACESSO,
  * com limite de tentativas por IP e comparação em tempo constante.

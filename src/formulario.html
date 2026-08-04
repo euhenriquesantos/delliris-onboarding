@@ -6,8 +6,8 @@
 <meta name="theme-color" content="#2b0000">
 <meta name="robots" content="noindex, nofollow">
 <title>Roteiro de Inauguração — Dell'Iris</title>
-<link rel="icon" href="/onboarding/img/logo.webp">
-<link rel="apple-touch-icon" href="/onboarding/img/logo.webp">
+<link rel="icon" href="/img/logo.webp">
+<link rel="apple-touch-icon" href="/img/logo.webp">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
@@ -170,6 +170,8 @@
     transition: .18s;
   }
   .photo-btn:hover { background: var(--white); color: var(--bordo); border-color: var(--white); }
+  .photo-acoes { display: flex; flex-wrap: wrap; gap: 10px; }
+  .photo-acoes .photo-btn { flex: 1 1 auto; justify-content: center; min-width: 132px; }
   .photo-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
   .thumb-wrap { position: relative; width: 76px; height: 76px; }
   .thumb-wrap img {
@@ -265,7 +267,7 @@
 
 <header class="topo">
   <div class="topo-inner">
-    <img src="/onboarding/img/logo.webp" alt="Dell'Iris">
+    <img src="/img/logo.webp" alt="Dell'Iris">
     <div class="tt">
       <strong>Roteiro de inauguração</strong>
       <span>Comida que Abraça</span>
@@ -313,7 +315,7 @@
   <div id="report"></div>
 
   <div class="rodape">
-    <img src="/onboarding/img/logo.webp" alt="">
+    <img src="/img/logo.webp" alt="">
     <div>
       <div class="rb">Dell'Iris</div>
       <div>Roteiro de inauguração — uso interno</div>
@@ -327,9 +329,9 @@
    Esta página não guarda segredo nenhum de propósito: tudo que o
    navegador recebe é público para quem abrir o código-fonte.
    A URL e o segredo do Apps Script vivem nos secrets da Cloudflare,
-   e as chamadas passam pela ponte /onboarding/api.
+   e as chamadas passam pela ponte /api.
 ------------------------------------------------------------------- */
-const URL_API = '/onboarding/api';
+const URL_API = '/api';
 
 const SECTIONS = [
   {id:'s1', title:"1. Conhecer a operação", items:[
@@ -483,28 +485,43 @@ function render(){
     if (s.photo) {
       const photoWrap = document.createElement('div');
       photoWrap.className = 'obs-block';
-      const label = document.createElement('label');
-      label.className = 'photo-btn';
-      label.innerHTML = '📷 Adicionar foto';
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = 'image/*';
-      input.capture = 'environment';
-      input.multiple = true;
-      input.style.display = 'none';
-      input.addEventListener('change', async (e) => {
-        const arquivos = Array.from(e.target.files || []);
-        e.target.value = '';
-        if (!arquivos.length) return;
-        label.innerHTML = '⏳ Processando...';
-        for (const file of arquivos) {
-          try { st.photos.push(await processarFoto(file)); }
-          catch (err) { alert('Não consegui ler a foto "' + file.name + '": ' + err.message); }
-        }
-        render();
-      });
-      label.appendChild(input);
-      photoWrap.appendChild(label);
+      const botoes = document.createElement('div');
+      botoes.className = 'photo-acoes';
+
+      /**
+       * Dois botões em vez de um: `capture` abre a câmera direto e esconde a
+       * galeria, então um botão só nunca dá as duas opções. O da galeria não
+       * usa `capture` e aceita várias fotos de uma vez.
+       */
+      function criarBotao(rotulo, aoEscolher){
+        const label = document.createElement('label');
+        label.className = 'photo-btn';
+        label.innerHTML = rotulo;
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        input.style.display = 'none';
+        aoEscolher(input);
+        input.addEventListener('change', async (e) => {
+          const arquivos = Array.from(e.target.files || []);
+          e.target.value = '';
+          if (!arquivos.length) return;
+          const original = label.innerHTML;
+          label.innerHTML = '⏳ Processando...';
+          for (const file of arquivos) {
+            try { st.photos.push(await processarFoto(file)); }
+            catch (err) { alert('Não consegui ler a foto "' + file.name + '": ' + err.message); }
+          }
+          label.innerHTML = original;
+          render();
+        });
+        label.appendChild(input);
+        botoes.appendChild(label);
+      }
+
+      criarBotao('📷 Tirar foto', input => { input.capture = 'environment'; });
+      criarBotao('🖼 Da galeria', input => { input.multiple = true; });
+      photoWrap.appendChild(botoes);
 
       if (st.photos.length) {
         const grid = document.createElement('div');

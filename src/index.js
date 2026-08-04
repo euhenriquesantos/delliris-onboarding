@@ -7,6 +7,9 @@
  * Regra que organiza o arquivo: nada sai daqui sem passar por `entregar()`,
  * e o formulário só é montado depois de `sessaoValida()`. Não há diretório de
  * arquivos estáticos — assets seriam públicos e passariam por cima do portão.
+ *
+ * Rotas:  /  formulário (ou tela de código)   /entrar  confere o código
+ *         /api  ponte com o Drive             /img/*   imagens da marca
  */
 
 import { sessaoValida, paginaLogin } from './auth.js';
@@ -15,8 +18,6 @@ import { postApi } from './api.js';
 import formulario from './formulario.html';
 import capa from './img/capa.png';
 import logoMarca from './img/logo.webp';
-
-const PREFIXO = '/onboarding';
 
 /**
  * Imagens da marca, embutidas no Worker como dados binários.
@@ -28,6 +29,10 @@ const IMAGENS = {
   'capa.png': [capa, 'image/png'],
   'logo.webp': [logoMarca, 'image/webp']
 };
+
+/* O app vive na raiz de onboarding.delliris.com.br. Links antigos com
+   /onboarding no caminho continuam funcionando por redirecionamento. */
+const PREFIXO_ANTIGO = '/onboarding';
 
 const CABECALHOS_SEGURANCA = {
   'X-Robots-Tag': 'noindex, nofollow',
@@ -83,8 +88,13 @@ export default {
     const url = new URL(request.url);
     const caminho = url.pathname.replace(/\/+$/, '') || '/';
 
-    if (caminho.startsWith(PREFIXO + '/img/')) {
-      const item = IMAGENS[caminho.slice((PREFIXO + '/img/').length)];
+    if (caminho === PREFIXO_ANTIGO || caminho.startsWith(PREFIXO_ANTIGO + '/')) {
+      const destino = caminho.slice(PREFIXO_ANTIGO.length) || '/';
+      return entregar(Response.redirect(url.origin + destino, 302));
+    }
+
+    if (caminho.startsWith('/img/')) {
+      const item = IMAGENS[caminho.slice('/img/'.length)];
       if (!item) return entregar(pagina('Não encontrado.', 404));
       return entregar(new Response(item[0], {
         headers: {
@@ -95,11 +105,11 @@ export default {
     }
 
     // Única rota que existe antes da sessão — senão não haveria como criá-la.
-    if (caminho === PREFIXO + '/entrar') {
+    if (caminho === '/entrar') {
       return entregar(await postEntrar(request, env));
     }
 
-    if (caminho === PREFIXO + '/api') {
+    if (caminho === '/api') {
       if (!(await sessaoValida(request, env))) {
         return entregar(json({
           ok: false,
@@ -109,16 +119,11 @@ export default {
       return entregar(await postApi(request, env));
     }
 
-    if (caminho === PREFIXO) {
+    if (caminho === '/') {
       if (!(await sessaoValida(request, env))) {
         return entregar(pagina(paginaLogin(), 401), true);
       }
       return entregar(pagina(formulario), true);
-    }
-
-    // Digitar só o domínio é o erro mais natural do mundo — leva para o roteiro.
-    if (caminho === '/') {
-      return entregar(Response.redirect(url.origin + PREFIXO, 302));
     }
 
     return entregar(pagina('Não encontrado.', 404));
