@@ -46,11 +46,17 @@ Duas adaptações conscientes, porque aqui o contexto é diferente de um site in
   marca não tem contraste suficiente sobre o bordô; ele segue sendo usado nos hovers, onde o
   fundo é branco.
 
-As imagens ficam em `src/img/`, já otimizadas, e são servidas pelo próprio Worker em
-`/onboarding/img/*` com cache de um ano. A `capa.jpg` saiu de 488 KB para 119 KB — ela aparece
-sob um véu bordô na tela de código, então perda de qualidade ali é invisível e o carregamento
-em 4G é o que importa. O logo do PDF vai embutido em base64 no HTML, porque o relatório é
-gerado no aparelho e não pode depender de baixar nada na hora.
+As imagens ficam em `src/img/` e são servidas pelo próprio Worker em `/onboarding/img/*` com
+cache de um ano. O logo do PDF vai embutido em base64 no HTML, porque o relatório é gerado no
+aparelho e não pode depender de baixar nada na hora.
+
+A `capa.png` é o lockup da marca, e ele entra na tela de código **como elemento**, em tamanho
+de leitura sobre o bordô — não como imagem de fundo. Usado como `background: cover`, em tela de
+celular ele era recortado num fragmento irreconhecível atrás do véu. O PNG tem transparência
+nas bordas, então sobre o bordô ele se integra sem moldura.
+
+Para trocar a capa: substitua `src/img/capa.png` mantendo o nome e o formato — o import em
+`src/index.js` é literal, e um arquivo com outro nome quebra o build.
 
 ## Decisões de segurança
 

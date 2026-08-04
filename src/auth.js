@@ -187,13 +187,13 @@ export function paginaLogin() {
     padding: 24px; line-height: 1.55; -webkit-font-smoothing: antialiased;
     position: relative; overflow-x: hidden;
   }
-  /* A capa fica sob um véu bordô forte: dá o clima da marca sem competir
-     com o campo do código, que é a única coisa a fazer nesta tela. */
+  /* Profundidade só com o bordô da marca: a capa é o lockup, e ele tem
+     tamanho de leitura próprio — recortá-lo como textura de fundo o tornava
+     um borrão irreconhecível em tela de celular. */
   body::before {
     content: ""; position: fixed; inset: 0; z-index: 0;
     background:
-      linear-gradient(180deg, rgba(43,0,0,.88) 0%, rgba(99,11,11,.93) 55%, rgba(43,0,0,.96) 100%),
-      url('/onboarding/img/capa.jpg') center/cover no-repeat;
+      radial-gradient(120% 70% at 50% 0%, rgba(122,18,18,.95) 0%, rgba(99,11,11,1) 45%, rgba(43,0,0,1) 100%);
   }
   .painel { position: relative; z-index: 1; width: 100%; max-width: 380px; }
   .caixa {
@@ -203,9 +203,9 @@ export function paginaLogin() {
     width: 100%; text-align: center;
     backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   }
-  .marca {
-    width: 96px; height: 96px; display: block; margin: 0 auto 18px;
-    border-radius: 22px; border: 2px solid rgba(255,255,255,.85); object-fit: cover;
+  .capa {
+    display: block; width: min(88%, 300px); height: auto;
+    margin: 0 auto 18px; position: relative; z-index: 1;
   }
   h1 {
     font-family: "Roboto", sans-serif; font-weight: 400;
@@ -241,8 +241,8 @@ export function paginaLogin() {
 </head>
 <body>
   <div class="painel">
+    <img class="capa" src="/onboarding/img/capa.png" alt="Dell'Iris — Comida que abraça!">
     <form class="caixa" id="form" autocomplete="off">
-      <img class="marca" src="/onboarding/img/logo.webp" alt="Dell'Iris — Comida que abraça!">
       <h1>Roteiro de inauguração</h1>
       <p class="sub">Digite o código de 6 dígitos para continuar.</p>
       <input id="codigo" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="••••••"

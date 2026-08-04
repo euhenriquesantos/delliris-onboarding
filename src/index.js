@@ -13,7 +13,7 @@ import { sessaoValida, paginaLogin } from './auth.js';
 import { postEntrar } from './entrar.js';
 import { postApi } from './api.js';
 import formulario from './formulario.html';
-import capa from './img/capa.jpg';
+import capa from './img/capa.png';
 import logoMarca from './img/logo.webp';
 
 const PREFIXO = '/onboarding';
@@ -25,7 +25,7 @@ const PREFIXO = '/onboarding';
  * formulário.
  */
 const IMAGENS = {
-  'capa.jpg': [capa, 'image/jpeg'],
+  'capa.png': [capa, 'image/png'],
   'logo.webp': [logoMarca, 'image/webp']
 };
 
