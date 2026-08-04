@@ -13,8 +13,21 @@ import { sessaoValida, paginaLogin } from './auth.js';
 import { postEntrar } from './entrar.js';
 import { postApi } from './api.js';
 import formulario from './formulario.html';
+import capa from './img/capa.jpg';
+import logoMarca from './img/logo.webp';
 
 const PREFIXO = '/onboarding';
+
+/**
+ * Imagens da marca, embutidas no Worker como dados binários.
+ * São públicas de propósito: a tela de código precisa delas antes da sessão
+ * existir, e logo de marca não é segredo. O que nunca sai sem sessão é o
+ * formulário.
+ */
+const IMAGENS = {
+  'capa.jpg': [capa, 'image/jpeg'],
+  'logo.webp': [logoMarca, 'image/webp']
+};
 
 const CABECALHOS_SEGURANCA = {
   'X-Robots-Tag': 'noindex, nofollow',
@@ -33,7 +46,8 @@ const CABECALHOS_SEGURANCA = {
 const CSP = [
   "default-src 'none'",
   "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com",
-  "style-src 'self' 'unsafe-inline'",
+  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+  "font-src https://fonts.gstatic.com",
   "img-src 'self' data: blob:",
   "connect-src 'self'",
   "form-action 'self'",
@@ -68,6 +82,17 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     const caminho = url.pathname.replace(/\/+$/, '') || '/';
+
+    if (caminho.startsWith(PREFIXO + '/img/')) {
+      const item = IMAGENS[caminho.slice((PREFIXO + '/img/').length)];
+      if (!item) return entregar(pagina('Não encontrado.', 404));
+      return entregar(new Response(item[0], {
+        headers: {
+          'Content-Type': item[1],
+          'Cache-Control': 'public, max-age=31536000, immutable'
+        }
+      }));
+    }
 
     // Única rota que existe antes da sessão — senão não haveria como criá-la.
     if (caminho === PREFIXO + '/entrar') {

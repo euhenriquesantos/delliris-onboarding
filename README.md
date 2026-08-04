@@ -32,6 +32,26 @@ O PDF é gerado no próprio celular (jsPDF) e as fotos são reduzidas para 1600p
 antes de subir — uma foto de 4 MB vira ~250 KB, que é o que faz o envio funcionar em 4G de loja.
 Cada foto sobe numa requisição separada, com barra de progresso.
 
+## Identidade visual
+
+Mesma linguagem da Central de Documentos: bordô `#630b0b` de fundo, `#2b0000` na barra
+superior, cartões `rgba(43,0,0,.49)` com borda branca de 2px e raio 16px, botões em pílula
+branca que viram verde `#0c7b12` no hover, Roboto nos títulos e Open Sans no corpo.
+
+Duas adaptações conscientes, porque aqui o contexto é diferente de um site institucional:
+
+- **Campos de formulário são brancos com texto escuro.** O roteiro é preenchido em pé, dentro
+  de loja, muitas vezes sob luz forte — contraste alto vale mais que fidelidade cromática.
+- **Verde clareado (`#4fc25c`) para texto de sucesso e barras de progresso.** O `#0c7b12` da
+  marca não tem contraste suficiente sobre o bordô; ele segue sendo usado nos hovers, onde o
+  fundo é branco.
+
+As imagens ficam em `src/img/`, já otimizadas, e são servidas pelo próprio Worker em
+`/onboarding/img/*` com cache de um ano. A `capa.jpg` saiu de 488 KB para 119 KB — ela aparece
+sob um véu bordô na tela de código, então perda de qualidade ali é invisível e o carregamento
+em 4G é o que importa. O logo do PDF vai embutido em base64 no HTML, porque o relatório é
+gerado no aparelho e não pode depender de baixar nada na hora.
+
 ## Decisões de segurança
 
 | O que | Como | Por quê |

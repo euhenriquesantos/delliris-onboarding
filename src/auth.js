@@ -163,53 +163,95 @@ export function paginaLogin() {
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#2b0000">
 <meta name="robots" content="noindex, nofollow">
 <title>Acesso — Dell'Iris</title>
+<link rel="icon" href="/onboarding/img/logo.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
   :root {
-    --surface-0: #f7f6f2; --surface-2: #ffffff;
-    --text-primary: #1c1c1a; --text-secondary: #5f5e5a;
-    --text-danger: #a32d2d; --border: #d3d1c7; --border-strong: #b4b2a9;
+    --bordo: #630b0b; --dark: #2b0000; --green: #0c7b12;
+    --white: #ffffff; --soft: rgba(255,255,255,.78); --mut: rgba(255,255,255,.55);
+    --card-bg: rgba(43,0,0,.62); --card-border: rgba(255,255,255,.85);
+    --erro: #ff9d9d; --radius: 16px; --pill: 42px;
   }
   * { box-sizing: border-box; }
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-    background: var(--surface-0); color: var(--text-primary);
-    margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-    padding: 1.5rem; line-height: 1.6;
+    font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--bordo); color: var(--white);
+    margin: 0; min-height: 100vh; min-height: 100svh;
+    display: flex; align-items: center; justify-content: center;
+    padding: 24px; line-height: 1.55; -webkit-font-smoothing: antialiased;
+    position: relative; overflow-x: hidden;
   }
+  /* A capa fica sob um véu bordô forte: dá o clima da marca sem competir
+     com o campo do código, que é a única coisa a fazer nesta tela. */
+  body::before {
+    content: ""; position: fixed; inset: 0; z-index: 0;
+    background:
+      linear-gradient(180deg, rgba(43,0,0,.88) 0%, rgba(99,11,11,.93) 55%, rgba(43,0,0,.96) 100%),
+      url('/onboarding/img/capa.jpg') center/cover no-repeat;
+  }
+  .painel { position: relative; z-index: 1; width: 100%; max-width: 380px; }
   .caixa {
-    background: var(--surface-2); border: 0.5px solid var(--border);
-    border-radius: 12px; padding: 2rem 1.5rem; width: 100%; max-width: 360px; text-align: center;
+    position: relative; z-index: 1;
+    background: var(--card-bg); border: 2px solid var(--card-border);
+    border-radius: var(--radius); padding: 32px 24px 26px;
+    width: 100%; text-align: center;
+    backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px);
   }
-  h1 { font-size: 18px; font-weight: 600; margin: 0 0 4px; }
-  p.sub { font-size: 13px; color: var(--text-secondary); margin: 0 0 1.5rem; }
+  .marca {
+    width: 96px; height: 96px; display: block; margin: 0 auto 18px;
+    border-radius: 22px; border: 2px solid rgba(255,255,255,.85); object-fit: cover;
+  }
+  h1 {
+    font-family: "Roboto", sans-serif; font-weight: 400;
+    font-size: 22px; line-height: 1.3; margin: 0 0 6px;
+  }
+  p.sub { font-size: 13.5px; color: var(--soft); margin: 0 0 22px; }
   input {
-    width: 100%; padding: 14px; text-align: center;
-    font-size: 26px; letter-spacing: 10px; font-family: inherit; font-weight: 600;
-    border: 0.5px solid var(--border-strong); border-radius: 8px;
-    background: var(--surface-0); color: var(--text-primary);
+    width: 100%; padding: 15px; text-align: center;
+    font-size: 28px; letter-spacing: 12px; text-indent: 12px;
+    font-family: "Roboto", sans-serif; font-weight: 700;
+    border: 2px solid rgba(255,255,255,.45); border-radius: 12px;
+    background: rgba(255,255,255,.10); color: var(--white);
+    -webkit-appearance: none;
   }
-  input:focus { outline: 2px solid var(--text-primary); outline-offset: 1px; }
-  input.erro { border-color: var(--text-danger); }
+  input::placeholder { color: rgba(255,255,255,.3); letter-spacing: 8px; }
+  input:focus { outline: none; border-color: var(--white); background: rgba(255,255,255,.16); }
+  input.erro { border-color: var(--erro); }
   button {
-    width: 100%; margin-top: 12px; padding: 12px; border: none; border-radius: 8px;
-    background: #1c1c1a; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer;
+    width: 100%; margin-top: 14px; padding: 15px;
+    border: 2px solid var(--white); border-radius: var(--pill);
+    background: var(--white); color: var(--bordo);
+    font-family: inherit; font-size: 16px; font-weight: 700; cursor: pointer; transition: .18s;
   }
-  button:disabled { opacity: .5; cursor: default; }
-  .msg { min-height: 20px; margin-top: 10px; font-size: 13px; color: var(--text-danger); }
+  button:hover:not(:disabled) { background: var(--green); border-color: var(--green); color: var(--white); }
+  button:disabled { opacity: .45; cursor: default; }
+  .msg { min-height: 22px; margin-top: 12px; font-size: 13.5px; color: var(--erro); }
+  .rodape {
+    position: relative; z-index: 1;
+    margin-top: 18px; font-size: 11px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--mut); text-align: center;
+  }
 </style>
 </head>
 <body>
-  <form class="caixa" id="form" autocomplete="off">
-    <h1>Roteiro de inauguração</h1>
-    <p class="sub">Digite o código de 6 dígitos para continuar.</p>
-    <input id="codigo" type="password" inputmode="numeric" pattern="[0-9]*"
-           maxlength="6" autocomplete="one-time-code" aria-label="Código de acesso" autofocus>
-    <button type="submit" id="btn">Entrar</button>
-    <div class="msg" id="msg" role="alert"></div>
-  </form>
+  <div class="painel">
+    <form class="caixa" id="form" autocomplete="off">
+      <img class="marca" src="/onboarding/img/logo.webp" alt="Dell'Iris — Comida que abraça!">
+      <h1>Roteiro de inauguração</h1>
+      <p class="sub">Digite o código de 6 dígitos para continuar.</p>
+      <input id="codigo" type="password" inputmode="numeric" pattern="[0-9]*" placeholder="••••••"
+             maxlength="6" autocomplete="one-time-code" aria-label="Código de acesso" autofocus>
+      <button type="submit" id="btn">Entrar</button>
+      <div class="msg" id="msg" role="alert"></div>
+    </form>
+    <div class="rodape">Uso interno — Dell'Iris</div>
+  </div>
 <script>
   const form = document.getElementById('form');
   const campo = document.getElementById('codigo');

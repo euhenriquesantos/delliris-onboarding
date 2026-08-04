@@ -8,7 +8,8 @@
   // sessão validada. Não existe diretório de "static assets" de propósito:
   // assets são públicos por natureza e passariam por cima do portão de acesso.
   "rules": [
-    { "type": "Text", "globs": ["**/*.html"], "fallthrough": false }
+    { "type": "Text", "globs": ["**/*.html"], "fallthrough": false },
+    { "type": "Data", "globs": ["**/*.jpg", "**/*.png", "**/*.webp"], "fallthrough": false }
   ],
 
   // Limite de tentativas do código de acesso.

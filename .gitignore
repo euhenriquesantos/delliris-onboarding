@@ -17,3 +17,10 @@ Thumbs.db
 
 # Saídas de teste
 *.pdf
+
+# Arquivos de origem soltos na raiz (outro projeto / imagens brutas da marca).
+# As versões otimizadas que o Worker usa ficam em src/img/.
+/index.html
+/capa.png
+/logo-hero.png
+/logo.webp
