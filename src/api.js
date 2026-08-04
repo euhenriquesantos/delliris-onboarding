@@ -34,6 +34,13 @@ export async function postApi(request, env) {
     return erro('Integração com o Drive não configurada. Avise quem administra o site.', 500);
   }
 
+  // Espaço sobrando no secret e URL de rascunho (/dev) são os erros de cadastro
+  // mais comuns, e os dois se manifestam como "resposta inesperada" lá na frente.
+  const urlAppsScript = String(env.APPS_SCRIPT_URL).trim();
+  if (!urlAppsScript.startsWith('https://script.google.com/') || !urlAppsScript.endsWith('/exec')) {
+    return erro('A URL do Apps Script cadastrada não é a de uma implantação publicada: ela precisa começar com https://script.google.com/ e terminar em /exec.', 500);
+  }
+
   const tamanho = Number(request.headers.get('Content-Length') || 0);
   if (tamanho > LIMITE_CORPO) {
     return erro('Arquivo grande demais para envio.', 413);
@@ -58,7 +65,7 @@ export async function postApi(request, env) {
 
   let upstream;
   try {
-    upstream = await fetch(env.APPS_SCRIPT_URL, {
+    upstream = await fetch(urlAppsScript, {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: carga,
@@ -72,8 +79,25 @@ export async function postApi(request, env) {
   try {
     JSON.parse(resposta);
   } catch (_) {
-    // Apps Script devolvendo HTML costuma ser implantação errada ou sem autorização.
-    return erro('O serviço do Drive respondeu de forma inesperada. Confira se a implantação do Apps Script está publicada na versão atual.', 502);
+    // Quando o Apps Script não devolve JSON, é quase sempre configuração da
+    // implantação. Vale distinguir os casos: a diferença entre eles muda
+    // completamente o que a pessoa precisa arrumar.
+    console.log('Apps Script respondeu sem JSON', {
+      status: upstream.status,
+      urlFinal: upstream.url,
+      inicio: resposta.slice(0, 400)
+    });
+
+    if (/accounts\.google\.com|ServiceLogin|Fazer login|Sign in|Faça login/i.test(resposta)) {
+      return erro('O Apps Script está pedindo login. Em "Implantar → Gerenciar implantações", mude "Quem pode acessar" para "Qualquer pessoa" e publique nova versão.', 502);
+    }
+    if (/Exception|TypeError|ReferenceError|não foi encontrado|was not found/i.test(resposta)) {
+      return erro('O Apps Script devolveu um erro de execução — a implantação provavelmente ainda está numa versão antiga do código. Publique uma NOVA VERSÃO em "Gerenciar implantações".', 502);
+    }
+    if (upstream.status === 404) {
+      return erro('A URL do Apps Script não existe mais (HTTP 404). Copie de novo a URL da implantação atual.', 502);
+    }
+    return erro('O serviço do Drive respondeu de forma inesperada (HTTP ' + upstream.status + '). Confira a implantação do Apps Script.', 502);
   }
 
   return new Response(resposta, { status: 200, headers: cabecalhos });
