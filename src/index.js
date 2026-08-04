@@ -91,6 +91,11 @@ export default {
       return entregar(pagina(formulario), true);
     }
 
+    // Digitar só o domínio é o erro mais natural do mundo — leva para o roteiro.
+    if (caminho === '/') {
+      return entregar(Response.redirect(url.origin + PREFIXO, 302));
+    }
+
     return entregar(pagina('Não encontrado.', 404));
   }
 };
