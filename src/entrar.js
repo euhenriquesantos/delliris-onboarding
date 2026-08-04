@@ -8,7 +8,7 @@
 import {
   codigoConfere, criarCookieSessao,
   registrarTentativa, limparTentativas
-} from '../_lib/auth.js';
+} from './auth.js';
 
 const cabecalhos = {
   'Content-Type': 'application/json; charset=utf-8',
@@ -21,7 +21,7 @@ function resposta(dados, status, cookie) {
   return new Response(JSON.stringify(dados), { status: status || 200, headers: h });
 }
 
-export async function onRequest({ request, env }) {
+export async function postEntrar(request, env) {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ ok: false, erro: 'Método não permitido.' }), {
       status: 405, headers: { ...cabecalhos, Allow: 'POST' }

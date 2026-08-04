@@ -1,7 +1,7 @@
-# Modelo para desenvolvimento local com `npx wrangler pages dev public`.
+# Modelo para desenvolvimento local com `npx wrangler dev`.
 # Copie para .dev.vars e preencha. O .dev.vars está no .gitignore — nunca versione.
-# Em produção, estes valores vão como SECRETS no painel da Cloudflare Pages,
-# não como variáveis de texto simples.
+# Em produção, estes valores vão como SECRETS no painel da Cloudflare,
+# não como variáveis de texto simples nem no wrangler.jsonc.
 
 CODIGO_ACESSO=000000
 SESSAO_SEGREDO=gere-com-openssl-rand-hex-32

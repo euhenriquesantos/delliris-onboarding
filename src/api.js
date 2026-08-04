@@ -1,8 +1,8 @@
 /**
  * POST /onboarding/api
  *
- * Ponte entre o formulário e o Apps Script. Só chega aqui quem já passou pelo
- * middleware, ou seja, quem tem sessão válida.
+ * Ponte entre o formulário e o Apps Script. Só chega aqui quem tem sessão
+ * válida — quem confere isso é o roteador em index.js.
  *
  * Existe por um motivo de segurança: a URL do Apps Script e o segredo dele
  * ficam nos secrets da Cloudflare e nunca são entregues ao navegador. Sem esta
@@ -23,7 +23,7 @@ function erro(mensagem, status) {
   });
 }
 
-export async function onRequest({ request, env }) {
+export async function postApi(request, env) {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ ok: false, erro: 'Método não permitido.' }), {
       status: 405, headers: { ...cabecalhos, Allow: 'POST' }

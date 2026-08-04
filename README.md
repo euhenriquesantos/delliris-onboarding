@@ -10,11 +10,12 @@ envia. O relatório em PDF e as fotos aparecem organizados no Google Drive.
 Funcionário
     │  delliris.com.br/onboarding  + código de 6 dígitos
     ▼
-Cloudflare Pages
-    ├── functions/_middleware.js   portão: sem sessão válida, nada é entregue
-    ├── functions/onboarding/entrar.js   confere o código, abre a sessão
-    ├── functions/onboarding/api.js      ponte autenticada (guarda os segredos)
-    └── public/onboarding/index.html     o formulário
+Cloudflare Worker
+    ├── src/index.js        roteia e aplica o portão: sem sessão, nada é entregue
+    ├── src/entrar.js       confere o código, abre a sessão
+    ├── src/api.js          ponte autenticada (guarda os segredos)
+    ├── src/auth.js         assinatura da sessão, tela de código, limite de tentativas
+    └── src/formulario.html o formulário, embutido no Worker (não é arquivo público)
     │
     ▼  POST com o segredo injetado no servidor
 Google Apps Script  (apps-script/Codigo.gs)
@@ -41,7 +42,8 @@ Cada foto sobe numa requisição separada, com barra de progresso.
 | Comparações | Tempo constante (`iguaisEmTempoConstante`) | Não vaza quantos dígitos acertou pelo tempo de resposta |
 | Segredo do Drive | Secrets `APPS_SCRIPT_URL` / `APPS_SCRIPT_SEGREDO`, usados só na ponte | O navegador nunca vê a URL nem o segredo — sem isso, quem abrisse a página poderia gravar direto no Drive |
 | Apps Script | Web App é **só API** (`doGet` não serve página) | Se servisse, existiria uma cópia pública do formulário sem portão |
-| Cabeçalhos | `noindex`, `X-Frame-Options: DENY`, `nosniff`, HSTS, `Referrer-Policy` | Fora de buscador, fora de iframe |
+| Formulário | Importado como módulo de texto pelo Worker; **não existe diretório de static assets** | Assets são servidos antes do código rodar. Com eles, o portão dependeria da flag `run_worker_first` — e se ela falhasse, o vazamento seria silencioso |
+| Cabeçalhos | CSP restritiva, `noindex`, `X-Frame-Options: DENY`, `nosniff`, HSTS, `Referrer-Policy` | Fora de buscador, fora de iframe, e a página só carrega o que precisa |
 
 **O limite honesto disto:** um código único de 6 dígitos, compartilhado entre pessoas, é
 *controle de acesso*, não autenticação. Ele não distingue quem entrou, não é revogável por
@@ -63,31 +65,27 @@ não deve mais servir página nenhuma.
 
 ### 2. KV para o limite de tentativas
 
-No painel da Cloudflare: **Workers & Pages → KV → Create a namespace**, nome `tentativas-acesso`.
+**Workers & Pages → KV → Create a namespace**, nome `tentativas-acesso`. Copie o **ID** que
+aparece e cole em `wrangler.jsonc`, no lugar de `COLE_AQUI_O_ID_DO_NAMESPACE_KV`. Commit e push.
 
-### 3. Projeto no Cloudflare Pages
+O ID não é segredo — é só um identificador. Ele precisa estar no arquivo porque, em Workers, os
+bindings vêm da configuração versionada: um binding criado só pelo painel é apagado no deploy
+seguinte.
 
-**Workers & Pages → Create → aba `Pages` → Connect to Git** e escolha o repositório.
+> Sem esse binding o site **nega todos os acessos**, de propósito: é melhor falhar visível do que
+> rodar sem proteção contra força bruta.
 
-Tem que ser **Pages**, não Workers. O dashboard abre em Workers por padrão; se criar como Worker,
-o build roda `npx wrangler deploy` e falha com *"Could not detect a directory containing static
-files"*, porque Worker não serve a pasta `public` nem entende o diretório `functions/`.
+### 3. Worker no Cloudflare
 
-| Campo | Valor |
-|---|---|
-| Framework preset | None |
-| Build command | *(vazio)* |
-| Build output directory | `public` |
-
-> **Não adicione um `wrangler.toml` ao repositório.** Em projetos Pages, a existência desse
-> arquivo faz a Cloudflare ignorar os secrets e bindings do painel — o site subiria sem
-> `CODIGO_ACESSO` e sem KV. Toda a configuração vive no painel.
+**Workers & Pages → Create → Import a repository** e escolha `delliris-onboarding`.
+Deploy command: `npx wrangler deploy` (é o padrão). Build command fica vazio — não há build.
 
 Se o build reclamar de *"repository that no longer exists"*, o GitHub App da Cloudflare perdeu
 acesso ao repositório (acontece ao torná-lo privado): [github.com/settings/installations](https://github.com/settings/installations)
-→ Cloudflare Pages → Configure → adicione `delliris-onboarding` em Repository access.
+→ Cloudflare → Configure → adicione `delliris-onboarding` em Repository access.
 
-Em **Settings → Variables and Secrets**, adicione como **Secret** (não como texto simples):
+Depois do primeiro deploy, em **Settings → Variables and Secrets**, adicione como **Secret**
+(o tipo importa — "Text" é visível no painel e some no deploy seguinte):
 
 | Nome | Valor |
 |---|---|
@@ -96,31 +94,38 @@ Em **Settings → Variables and Secrets**, adicione como **Secret** (não como t
 | `APPS_SCRIPT_URL` | a URL `.../exec` do passo 1 |
 | `APPS_SCRIPT_SEGREDO` | o mesmo `SEGREDO` do `Codigo.gs` |
 
-Em **Settings → Bindings → KV namespace**, adicione o binding com nome de variável
-**`TENTATIVAS`** apontando para `tentativas-acesso`.
+Secrets sobrevivem aos deploys seguintes; não precisam estar no `wrangler.jsonc` e **não devem**.
 
-> Sem esse binding o site **nega todos os acessos**, de propósito: é melhor falhar visível do que
-> rodar sem proteção contra força bruta.
+A tela de secrets só aparece depois que existe código no Worker: um Worker apenas com arquivos
+estáticos mostra *"Variables cannot be added to a Worker that only has static assets"*. Aqui não
+acontece, porque o `wrangler.jsonc` aponta um `main`.
 
-Refaça o deploy depois de cadastrar tudo (variáveis novas só valem no build seguinte).
+Refaça o deploy depois de cadastrar tudo.
 
 ### 4. Domínio
 
 **Custom domains → Set up a domain → `delliris.com.br`**. Como o domínio já usa nameservers da
 Cloudflare, o registro é criado sozinho. O formulário fica em `delliris.com.br/onboarding`.
 
-Se um dia o domínio hospedar um site principal, o `/onboarding` continua funcionando: ele é um
-caminho dentro do mesmo projeto Pages.
+Em **Settings → Domains & Routes → Add → Custom domain**, use `delliris.com.br`. O Worker responde
+em `/onboarding`; qualquer outro caminho devolve 404, então o domínio fica livre para um site
+principal no futuro (aí a rota vira `delliris.com.br/onboarding*`).
 
 ## Rodar localmente
 
 ```bash
 cp .dev.vars.example .dev.vars   # preencha; o .dev.vars nunca é versionado
-npx wrangler pages dev public
+npx wrangler dev                 # abre em http://localhost:8787/onboarding
+```
+
+Conferir o empacotamento sem publicar nada:
+
+```bash
+npx wrangler deploy --dry-run
 ```
 
 ## Trocar o código de acesso
 
-Painel da Cloudflare → Settings → Variables and Secrets → editar `CODIGO_ACESSO` → **Retry
-deployment**. Não mexe em código e não precisa de commit. As sessões já abertas continuam
-válidas até expirar; para cortar todas na hora, troque também o `SESSAO_SEGREDO`.
+Painel da Cloudflare → Settings → Variables and Secrets → editar `CODIGO_ACESSO`. Não mexe em
+código e não precisa de commit. As sessões já abertas continuam válidas até expirar; para cortar
+todas na hora, troque também o `SESSAO_SEGREDO`.

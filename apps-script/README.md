@@ -3,7 +3,7 @@
 Navegador nenhum tem permissão para gravar no seu Drive. Quem grava é este **Google Apps Script**,
 publicado como Web App e rodando com a sua conta.
 
-Ele é **só API**: não serve página. Quem entrega o formulário é o Cloudflare Pages, atrás do
+Ele é **só API**: não serve página. Quem entrega o formulário é o Worker na Cloudflare, atrás do
 código de acesso — veja o [README principal](../README.md).
 
 ## Passo a passo

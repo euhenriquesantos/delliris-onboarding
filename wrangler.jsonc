@@ -1,0 +1,27 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "delliris-onboarding",
+  "main": "src/index.js",
+  "compatibility_date": "2026-08-01",
+
+  // O formulário é importado como texto e devolvido pelo Worker só depois da
+  // sessão validada. Não existe diretório de "static assets" de propósito:
+  // assets são públicos por natureza e passariam por cima do portão de acesso.
+  "rules": [
+    { "type": "Text", "globs": ["**/*.html"], "fallthrough": false }
+  ],
+
+  // Limite de tentativas do código de acesso.
+  // Crie em Workers & Pages → KV → Create a namespace e cole o ID abaixo.
+  "kv_namespaces": [
+    { "binding": "TENTATIVAS", "id": "COLE_AQUI_O_ID_DO_NAMESPACE_KV" }
+  ],
+
+  // CODIGO_ACESSO, SESSAO_SEGREDO, APPS_SCRIPT_URL e APPS_SCRIPT_SEGREDO são
+  // secrets, cadastrados no painel. Não devem aparecer aqui: este arquivo é
+  // versionado. Secrets sobrevivem aos deploys; "vars" em texto simples, não.
+
+  "observability": {
+    "enabled": true
+  }
+}
