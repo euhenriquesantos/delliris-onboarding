@@ -67,13 +67,25 @@ No painel da Cloudflare: **Workers & Pages → KV → Create a namespace**, nome
 
 ### 3. Projeto no Cloudflare Pages
 
-**Workers & Pages → Create → Pages → Connect to Git** e escolha o repositório.
+**Workers & Pages → Create → aba `Pages` → Connect to Git** e escolha o repositório.
+
+Tem que ser **Pages**, não Workers. O dashboard abre em Workers por padrão; se criar como Worker,
+o build roda `npx wrangler deploy` e falha com *"Could not detect a directory containing static
+files"*, porque Worker não serve a pasta `public` nem entende o diretório `functions/`.
 
 | Campo | Valor |
 |---|---|
 | Framework preset | None |
 | Build command | *(vazio)* |
 | Build output directory | `public` |
+
+> **Não adicione um `wrangler.toml` ao repositório.** Em projetos Pages, a existência desse
+> arquivo faz a Cloudflare ignorar os secrets e bindings do painel — o site subiria sem
+> `CODIGO_ACESSO` e sem KV. Toda a configuração vive no painel.
+
+Se o build reclamar de *"repository that no longer exists"*, o GitHub App da Cloudflare perdeu
+acesso ao repositório (acontece ao torná-lo privado): [github.com/settings/installations](https://github.com/settings/installations)
+→ Cloudflare Pages → Configure → adicione `delliris-onboarding` em Repository access.
 
 Em **Settings → Variables and Secrets**, adicione como **Secret** (não como texto simples):
 
