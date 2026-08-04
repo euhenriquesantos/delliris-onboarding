@@ -14,7 +14,7 @@
   // Limite de tentativas do código de acesso.
   // Crie em Workers & Pages → KV → Create a namespace e cole o ID abaixo.
   "kv_namespaces": [
-    { "binding": "TENTATIVAS", "id": "COLE_AQUI_O_ID_DO_NAMESPACE_KV" }
+    { "binding": "TENTATIVAS", "id": "dcefd46aefd245c3b4aadf268a294b1f" }
   ],
 
   // CODIGO_ACESSO, SESSAO_SEGREDO, APPS_SCRIPT_URL e APPS_SCRIPT_SEGREDO são
