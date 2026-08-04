@@ -1,0 +1,114 @@
+# Roteiro de inauguração — Dell'Iris
+
+Formulário de campo para a vistoria de inauguração de unidades. O funcionário abre
+`delliris.com.br/onboarding`, digita o código de acesso, preenche o roteiro, tira as fotos e
+envia. O relatório em PDF e as fotos aparecem organizados no Google Drive.
+
+## Como funciona
+
+```
+Funcionário
+    │  delliris.com.br/onboarding  + código de 6 dígitos
+    ▼
+Cloudflare Pages
+    ├── functions/_middleware.js   portão: sem sessão válida, nada é entregue
+    ├── functions/onboarding/entrar.js   confere o código, abre a sessão
+    ├── functions/onboarding/api.js      ponte autenticada (guarda os segredos)
+    └── public/onboarding/index.html     o formulário
+    │
+    ▼  POST com o segredo injetado no servidor
+Google Apps Script  (apps-script/Codigo.gs)
+    │
+    ▼
+Google Drive — pasta "Vistoria de Campo"
+    └── <Unidade>/<data> — Inauguração/
+        ├── relatorio-inauguracao-<unidade>-<data>.pdf
+        ├── resumo.txt
+        └── Fotos/01-conhecer-a-operacao-01.jpg ...
+```
+
+O PDF é gerado no próprio celular (jsPDF) e as fotos são reduzidas para 1600px e comprimidas
+antes de subir — uma foto de 4 MB vira ~250 KB, que é o que faz o envio funcionar em 4G de loja.
+Cada foto sobe numa requisição separada, com barra de progresso.
+
+## Decisões de segurança
+
+| O que | Como | Por quê |
+|---|---|---|
+| Código de acesso | Secret `CODIGO_ACESSO` na Cloudflare, conferido **no servidor** | Código dentro do HTML é lido por qualquer um no "ver código-fonte" |
+| Sessão | Cookie assinado com HMAC-SHA256, `HttpOnly` + `Secure` + `SameSite=Strict`, validade de 12h | Não dá para forjar sem a chave; XSS não consegue ler o cookie |
+| Força bruta | Máx. 8 tentativas por IP a cada 15 min (KV `TENTATIVAS`) | 6 dígitos são só 1 milhão de combinações |
+| Comparações | Tempo constante (`iguaisEmTempoConstante`) | Não vaza quantos dígitos acertou pelo tempo de resposta |
+| Segredo do Drive | Secrets `APPS_SCRIPT_URL` / `APPS_SCRIPT_SEGREDO`, usados só na ponte | O navegador nunca vê a URL nem o segredo — sem isso, quem abrisse a página poderia gravar direto no Drive |
+| Apps Script | Web App é **só API** (`doGet` não serve página) | Se servisse, existiria uma cópia pública do formulário sem portão |
+| Cabeçalhos | `noindex`, `X-Frame-Options: DENY`, `nosniff`, HSTS, `Referrer-Policy` | Fora de buscador, fora de iframe |
+
+**O limite honesto disto:** um código único de 6 dígitos, compartilhado entre pessoas, é
+*controle de acesso*, não autenticação. Ele não distingue quem entrou, não é revogável por
+pessoa e, se vazar num grupo de WhatsApp, vale para todo mundo. O limite por IP encarece muito
+a força bruta, mas não a torna impossível para quem tenha muitos IPs. Se em algum momento isso
+proteger dado sensível de cliente, o caminho é **Cloudflare Access** (Zero Trust, gratuito até
+50 usuários): login por e-mail com código, por pessoa, revogável, e sem código compartilhado.
+Dá para ligar por cima desta mesma estrutura, sem reescrever nada.
+
+## Publicar
+
+### 1. Backend no Drive (Apps Script)
+
+Veja [apps-script/README.md](apps-script/README.md). Ao final você tem uma URL `.../exec` e um
+valor de `SEGREDO` — os dois viram secrets no passo 3.
+
+Se o projeto ainda tiver um arquivo `Index.html`, **apague-o** e publique nova versão: o Web App
+não deve mais servir página nenhuma.
+
+### 2. KV para o limite de tentativas
+
+No painel da Cloudflare: **Workers & Pages → KV → Create a namespace**, nome `tentativas-acesso`.
+
+### 3. Projeto no Cloudflare Pages
+
+**Workers & Pages → Create → Pages → Connect to Git** e escolha o repositório.
+
+| Campo | Valor |
+|---|---|
+| Framework preset | None |
+| Build command | *(vazio)* |
+| Build output directory | `public` |
+
+Em **Settings → Variables and Secrets**, adicione como **Secret** (não como texto simples):
+
+| Nome | Valor |
+|---|---|
+| `CODIGO_ACESSO` | o código de 6 dígitos |
+| `SESSAO_SEGREDO` | 64 caracteres aleatórios (`openssl rand -hex 32`) |
+| `APPS_SCRIPT_URL` | a URL `.../exec` do passo 1 |
+| `APPS_SCRIPT_SEGREDO` | o mesmo `SEGREDO` do `Codigo.gs` |
+
+Em **Settings → Bindings → KV namespace**, adicione o binding com nome de variável
+**`TENTATIVAS`** apontando para `tentativas-acesso`.
+
+> Sem esse binding o site **nega todos os acessos**, de propósito: é melhor falhar visível do que
+> rodar sem proteção contra força bruta.
+
+Refaça o deploy depois de cadastrar tudo (variáveis novas só valem no build seguinte).
+
+### 4. Domínio
+
+**Custom domains → Set up a domain → `delliris.com.br`**. Como o domínio já usa nameservers da
+Cloudflare, o registro é criado sozinho. O formulário fica em `delliris.com.br/onboarding`.
+
+Se um dia o domínio hospedar um site principal, o `/onboarding` continua funcionando: ele é um
+caminho dentro do mesmo projeto Pages.
+
+## Rodar localmente
+
+```bash
+cp .dev.vars.example .dev.vars   # preencha; o .dev.vars nunca é versionado
+npx wrangler pages dev public
+```
+
+## Trocar o código de acesso
+
+Painel da Cloudflare → Settings → Variables and Secrets → editar `CODIGO_ACESSO` → **Retry
+deployment**. Não mexe em código e não precisa de commit. As sessões já abertas continuam
+válidas até expirar; para cortar todas na hora, troque também o `SESSAO_SEGREDO`.

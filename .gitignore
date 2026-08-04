@@ -1,0 +1,19 @@
+# Segredos locais do Wrangler — NUNCA versionar
+.dev.vars
+.env
+.env.*
+!.env.example
+
+# Cloudflare / Node
+.wrangler/
+node_modules/
+dist/
+
+# Sistema / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Saídas de teste
+*.pdf

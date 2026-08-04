@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roteiro de Inauguração — Dell'Iris</title>
+<style>
+  :root {
+    --surface-0: #f7f6f2;
+    --surface-1: #f1efe8;
+    --surface-2: #ffffff;
+    --text-primary: #1c1c1a;
+    --text-secondary: #5f5e5a;
+    --text-muted: #888780;
+    --text-danger: #a32d2d;
+    --text-ok: #2f6b46;
+    --border: #d3d1c7;
+    --border-strong: #b4b2a9;
+    --radius: 8px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--surface-0);
+    color: var(--text-primary);
+    margin: 0;
+    padding: 1.25rem;
+    line-height: 1.6;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin: 0 0 4px; }
+  .subtitle { font-size: 13px; color: var(--text-secondary); margin: 0 0 1.5rem; }
+  .setup {
+    background: var(--surface-1);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .setup .full { grid-column: 1 / -1; }
+  label.field-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: block;
+    margin-bottom: 4px;
+  }
+  .req::after { content: " *"; color: var(--text-danger); }
+  input[type=text], input[type=date], input[type=number], textarea {
+    width: 100%;
+    padding: 8px 10px;
+    border: 0.5px solid var(--border);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 14px;
+    font-family: inherit;
+  }
+  input.invalid { border-color: var(--text-danger); }
+  textarea { resize: vertical; }
+  .card {
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 12px;
+  }
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .card-header .title { font-weight: 600; font-size: 15px; }
+  .card-header .progress { font-size: 12px; color: var(--text-secondary); }
+  .check-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    padding: 6px 0;
+    cursor: pointer;
+  }
+  .check-row input { width: 18px; height: 18px; flex-shrink: 0; }
+  .check-row span.done { color: var(--text-secondary); text-decoration: line-through; }
+  .obs-block { margin-top: 10px; }
+  .photo-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 8px 12px;
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius);
+    background: var(--surface-2);
+  }
+  .photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 8px;
+  }
+  .thumb-wrap { position: relative; width: 72px; height: 72px; }
+  .thumb-wrap img {
+    width: 72px; height: 72px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+  }
+  .thumb-remove {
+    position: absolute; top: -6px; right: -6px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    border: none;
+    background: var(--text-danger);
+    color: white;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .actions { display: grid; gap: 8px; margin-top: 1.5rem; }
+  button.primary {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius);
+    border: none;
+    background: #1c1c1a;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button.primary:active { opacity: 0.85; }
+  button.primary:disabled { opacity: 0.5; cursor: default; }
+  button.secondary {
+    width: 100%;
+    padding: 12px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface-2);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+  }
+  #status {
+    display: none;
+    margin-top: 12px;
+    background: var(--surface-1);
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+  #status .msg { color: var(--text-secondary); }
+  #status.erro .msg { color: var(--text-danger); }
+  #status.ok .msg { color: var(--text-ok); font-weight: 600; }
+  .bar { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; margin-top: 8px; }
+  .bar > div { height: 100%; width: 0%; background: #1c1c1a; transition: width .2s ease; }
+  #status a { color: var(--text-primary); font-weight: 600; }
+  #report {
+    display: none;
+    margin-top: 1.5rem;
+    background: var(--surface-2);
+    border: 0.5px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  #report img {
+    width: 60px; height: 60px;
+    object-fit: cover;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border);
+  }
+  .report-item { font-size: 13px; margin-bottom: 2px; }
+  .report-section {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 0.5px solid var(--border);
+  }
+  .print-btn {
+    margin-top: 16px;
+    padding: 8px 14px;
+    border-radius: var(--radius);
+    border: 0.5px solid var(--border-strong);
+    background: var(--surface-2);
+    cursor: pointer;
+    font-size: 14px;
+  }
+  @media print {
+    .setup, .card, .actions, #status { display: none !important; }
+    #report { display: block !important; border: none; padding: 0; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Roteiro de inauguração — Dell'Iris</h1>
+  <p class="subtitle">Preencha em campo, seção por seção. Ao final, envie: o PDF e as fotos vão direto para a pasta da unidade no Drive.</p>
+
+  <div class="setup">
+    <div>
+      <label class="field-label req">Unidade</label>
+      <input type="text" id="f-unidade" placeholder="Ex: Dell'Iris Londrina Centro">
+    </div>
+    <div>
+      <label class="field-label req">Responsável de campo</label>
+      <input type="text" id="f-resp" placeholder="Nome">
+    </div>
+    <div>
+      <label class="field-label req">Data</label>
+      <input type="date" id="f-data">
+    </div>
+    <div>
+      <label class="field-label">Nota geral do dia (0-10)</label>
+      <input type="number" id="f-nota" min="0" max="10">
+    </div>
+  </div>
+
+  <div id="sections"></div>
+
+  <div class="actions">
+    <button class="primary" id="btn-enviar">Enviar para o Drive</button>
+    <button class="secondary" id="btn-gerar">Ver prévia do relatório</button>
+    <button class="secondary" id="btn-baixar">Baixar PDF no aparelho</button>
+  </div>
+
+  <div id="status"><div class="msg"></div><div class="bar"><div></div></div></div>
+
+  <div id="report"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ------------------------------------------------------------------
+   Esta página não guarda segredo nenhum de propósito: tudo que o
+   navegador recebe é público para quem abrir o código-fonte.
+   A URL e o segredo do Apps Script vivem nos secrets da Cloudflare,
+   e as chamadas passam pela ponte /onboarding/api.
+------------------------------------------------------------------- */
+const URL_API = '/onboarding/api';
+
+const SECTIONS = [
+  {id:'s1', title:"1. Conhecer a operação", items:[
+    'Chegada mínima 2h30 antes da abertura',
+    'Apresentação ao licenciado e equipe',
+    'Colaboradores presentes x escala prevista',
+    'Abertura da loja no horário previsto'
+  ], obs:true, photo:true},
+  {id:'s2', title:'2. Verificar fluxo de trabalho', items:[
+    'Fluxo de produção segue ficha técnica',
+    'Divisão de funções definida (monta/despacha/atende)',
+    'Dupla checagem antes do despacho',
+    'Gargalos de fluxo identificados'
+  ], obs:true, photo:true},
+  {id:'s3', title:'3. Testar impressão', items:[
+    'Teste impressão pedido balcão/cardápio próprio',
+    'Teste impressão pedido via iFood',
+    'Sem falha de papel, tinta ou corte',
+    'Layout do cupom validado'
+  ], obs:false, photo:true},
+  {id:'s4', title:'4. Checar iFood no geral', items:[
+    'Loja aberta e visível no app',
+    'Tempo de entrega condizente',
+    'Teste de pedido real realizado'
+  ], obs:false, photo:true},
+  {id:'s5', title:'5. Apresentar fichas de montagem', items:[
+    'Fichas apresentadas para toda equipe',
+    'Fichas impressas, atualizadas e fixadas',
+    'Confirmação verbal da equipe',
+    'Dúvidas de montagem esclarecidas'
+  ], obs:false, photo:true},
+  {id:'s6', title:'6. Acompanhar abertura e gargalos', items:[
+    'Acompanhamento até fim do primeiro pico',
+    'Tempo de preparo e despacho observado',
+    'Cancelamentos, atrasos ou chamados registrados',
+    'Gargalos operacionais sob volume identificados',
+    'Alinhamento final com o licenciado feito'
+  ], obs:true, photo:true, extra:[
+    'Gargalos identificados durante o pico',
+    'Ações imediatas tomadas em campo',
+    'Pendências a acompanhar remotamente (CS)'
+  ]}
+];
+
+const state = {};
+SECTIONS.forEach(s => {
+  state[s.id] = { checks: s.items.map(()=>false), obs:'', photos: [], extra: (s.extra||[]).map(()=>'') };
+});
+
+const container = document.getElementById('sections');
+
+/* ---------------------- rascunho local ---------------------- */
+const CHAVE_RASCUNHO = 'delliris-roteiro-rascunho';
+
+function salvarRascunho(){
+  try {
+    const dados = { campos: lerCampos(), secoes: {} };
+    SECTIONS.forEach(s => {
+      const st = state[s.id];
+      dados.secoes[s.id] = { checks: st.checks, obs: st.obs, extra: st.extra };
+    });
+    localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(dados));
+  } catch(_) { /* quota cheia ou modo privado: ignora */ }
+}
+
+function carregarRascunho(){
+  try {
+    const bruto = localStorage.getItem(CHAVE_RASCUNHO);
+    if (!bruto) return;
+    const dados = JSON.parse(bruto);
+    ['unidade','resp','data','nota'].forEach(k => {
+      if (dados.campos && dados.campos[k]) document.getElementById('f-'+k).value = dados.campos[k];
+    });
+    SECTIONS.forEach(s => {
+      const salvo = dados.secoes && dados.secoes[s.id];
+      if (!salvo) return;
+      const st = state[s.id];
+      if (Array.isArray(salvo.checks)) salvo.checks.forEach((v,i) => { if (i < st.checks.length) st.checks[i] = !!v; });
+      if (typeof salvo.obs === 'string') st.obs = salvo.obs;
+      if (Array.isArray(salvo.extra)) salvo.extra.forEach((v,i) => { if (i < st.extra.length) st.extra[i] = v; });
+    });
+  } catch(_) {}
+}
+
+/* ---------------------- render ---------------------- */
+function render(){
+  container.innerHTML = '';
+  SECTIONS.forEach(s => {
+    const st = state[s.id];
+    const done = st.checks.filter(Boolean).length;
+    const card = document.createElement('div');
+    card.className = 'card';
+
+    const header = document.createElement('div');
+    header.className = 'card-header';
+    header.innerHTML = '<span class="title">' + s.title + '</span><span class="progress">' + done + '/' + s.items.length + '</span>';
+    card.appendChild(header);
+
+    s.items.forEach((item, i) => {
+      const row = document.createElement('label');
+      row.className = 'check-row';
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.checked = st.checks[i];
+      cb.addEventListener('change', () => { st.checks[i] = cb.checked; salvarRascunho(); render(); });
+      const span = document.createElement('span');
+      span.textContent = item;
+      if (st.checks[i]) span.className = 'done';
+      row.appendChild(cb); row.appendChild(span);
+      card.appendChild(row);
+    });
+
+    if (s.obs) {
+      const obsBlock = document.createElement('div');
+      obsBlock.className = 'obs-block';
+      const obsLabel = document.createElement('label');
+      obsLabel.className = 'field-label';
+      obsLabel.textContent = 'Observações';
+      const ta = document.createElement('textarea');
+      ta.value = st.obs;
+      ta.rows = 2;
+      ta.placeholder = 'Anote o que observar aqui...';
+      ta.addEventListener('input', () => { st.obs = ta.value; salvarRascunho(); });
+      obsBlock.appendChild(obsLabel);
+      obsBlock.appendChild(ta);
+      card.appendChild(obsBlock);
+    }
+
+    if (s.extra) {
+      s.extra.forEach((label, ei) => {
+        const block = document.createElement('div');
+        block.className = 'obs-block';
+        const l = document.createElement('label');
+        l.className = 'field-label';
+        l.textContent = label;
+        const ta = document.createElement('textarea');
+        ta.value = st.extra[ei];
+        ta.rows = 2;
+        ta.addEventListener('input', () => { st.extra[ei] = ta.value; salvarRascunho(); });
+        block.appendChild(l);
+        block.appendChild(ta);
+        card.appendChild(block);
+      });
+    }
+
+    if (s.photo) {
+      const photoWrap = document.createElement('div');
+      photoWrap.className = 'obs-block';
+      const label = document.createElement('label');
+      label.className = 'photo-btn';
+      label.innerHTML = '📷 Adicionar foto';
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment';
+      input.multiple = true;
+      input.style.display = 'none';
+      input.addEventListener('change', async (e) => {
+        const arquivos = Array.from(e.target.files || []);
+        e.target.value = '';
+        if (!arquivos.length) return;
+        label.innerHTML = '⏳ Processando...';
+        for (const file of arquivos) {
+          try { st.photos.push(await processarFoto(file)); }
+          catch (err) { alert('Não consegui ler a foto "' + file.name + '": ' + err.message); }
+        }
+        render();
+      });
+      label.appendChild(input);
+      photoWrap.appendChild(label);
+
+      if (st.photos.length) {
+        const grid = document.createElement('div');
+        grid.className = 'photo-grid';
+        st.photos.forEach((foto, pi) => {
+          const thumbWrap = document.createElement('div');
+          thumbWrap.className = 'thumb-wrap';
+          const img = document.createElement('img');
+          img.src = foto.dataUrl;
+          const rm = document.createElement('button');
+          rm.className = 'thumb-remove';
+          rm.textContent = '✕';
+          rm.setAttribute('aria-label', 'Remover foto');
+          rm.addEventListener('click', () => { st.photos.splice(pi,1); render(); });
+          thumbWrap.appendChild(img); thumbWrap.appendChild(rm);
+          grid.appendChild(thumbWrap);
+        });
+        photoWrap.appendChild(grid);
+      }
+      card.appendChild(photoWrap);
+    }
+
+    container.appendChild(card);
+  });
+}
+
+/* ---------------------- fotos ---------------------- */
+const FOTO_MAX_LADO = 1600;
+const FOTO_QUALIDADE = 0.72;
+
+async function processarFoto(file){
+  let fonte;
+  try {
+    fonte = await createImageBitmap(file, { imageOrientation: 'from-image' });
+  } catch (_) {
+    fonte = await new Promise((res, rej) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => { URL.revokeObjectURL(url); res(img); };
+      img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('formato não suportado')); };
+      img.src = url;
+    });
+  }
+  let w = fonte.width || fonte.naturalWidth;
+  let h = fonte.height || fonte.naturalHeight;
+  const escala = Math.min(1, FOTO_MAX_LADO / Math.max(w, h));
+  w = Math.max(1, Math.round(w * escala));
+  h = Math.max(1, Math.round(h * escala));
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(fonte, 0, 0, w, h);
+  if (fonte.close) fonte.close();
+  return { dataUrl: canvas.toDataURL('image/jpeg', FOTO_QUALIDADE), w, h };
+}
+
+/* ---------------------- utilidades ---------------------- */
+function lerCampos(){
+  return {
+    unidade: document.getElementById('f-unidade').value.trim(),
+    resp: document.getElementById('f-resp').value.trim(),
+    data: document.getElementById('f-data').value,
+    nota: document.getElementById('f-nota').value
+  };
+}
+
+function slug(texto){
+  return (texto || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-zA-Z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase() || 'sem-nome';
+}
+
+function pad2(n){ return String(n).padStart(2, '0'); }
+
+function dataExtenso(iso){
+  if (!iso) return '(não informado)';
+  const [a, m, d] = iso.split('-');
+  return d + '/' + m + '/' + a;
+}
+
+function totalFotos(){
+  return SECTIONS.reduce((soma, s) => soma + state[s.id].photos.length, 0);
+}
+
+/* ---------------------- PDF ---------------------- */
+function gerarPdf(campos){
+  const { jsPDF } = window.jspdf || {};
+  if (!jsPDF) throw new Error('A biblioteca de PDF não carregou. Verifique a conexão e recarregue a página.');
+
+  const doc = new jsPDF({ unit: 'mm', format: 'a4' });
+  const MARGEM = 15;
+  const LARGURA = 210 - MARGEM * 2;
+  const RODAPE = 282;
+  let y = MARGEM;
+
+  function novaPagina(){ doc.addPage(); y = MARGEM; }
+  function espaco(altura){ if (y + altura > RODAPE) novaPagina(); }
+
+  function texto(txt, opcoes){
+    const o = opcoes || {};
+    const tamanho = o.tamanho || 10;
+    doc.setFont('helvetica', o.estilo || 'normal');
+    doc.setFontSize(tamanho);
+    doc.setTextColor.apply(doc, o.cor || [28, 28, 26]);
+    const linhas = doc.splitTextToSize(String(txt), o.largura || LARGURA);
+    const alturaLinha = tamanho * 0.42 + 1.2;
+    linhas.forEach(linha => {
+      espaco(alturaLinha);
+      doc.text(linha, o.x || MARGEM, y + alturaLinha - 1.5);
+      y += alturaLinha;
+    });
+  }
+
+  function divisoria(){
+    espaco(6);
+    y += 2;
+    doc.setDrawColor(211, 209, 199);
+    doc.setLineWidth(0.2);
+    doc.line(MARGEM, y, MARGEM + LARGURA, y);
+    y += 4;
+  }
+
+  // Cabeçalho
+  texto("Relatório de inauguração — Dell'Iris", { tamanho: 16, estilo: 'bold' });
+  y += 1;
+  texto(campos.unidade || '(unidade não informada)', { tamanho: 13, estilo: 'bold' });
+  y += 1;
+  texto(
+    'Data: ' + dataExtenso(campos.data) +
+    '   |   Responsável: ' + (campos.resp || '(não informado)') +
+    '   |   Nota geral: ' + (campos.nota === '' ? '(não informada)' : campos.nota + '/10'),
+    { tamanho: 9.5, cor: [95, 94, 90] }
+  );
+
+  const feitos = SECTIONS.reduce((soma, s) => soma + state[s.id].checks.filter(Boolean).length, 0);
+  const totalItens = SECTIONS.reduce((soma, s) => soma + s.items.length, 0);
+  texto('Itens concluídos: ' + feitos + '/' + totalItens + '   |   Fotos anexadas: ' + totalFotos(),
+    { tamanho: 9.5, cor: [95, 94, 90] });
+  divisoria();
+
+  // Seções
+  SECTIONS.forEach(s => {
+    const st = state[s.id];
+    const done = st.checks.filter(Boolean).length;
+    espaco(14);
+    texto(s.title + '  (' + done + '/' + s.items.length + ')', { tamanho: 12, estilo: 'bold' });
+    y += 1;
+
+    s.items.forEach((item, i) => {
+      const ok = st.checks[i];
+      texto((ok ? '[x] ' : '[  ] ') + item, {
+        tamanho: 10,
+        cor: ok ? [47, 107, 70] : [163, 45, 45]
+      });
+    });
+
+    if (st.obs) {
+      y += 1.5;
+      texto('Observações:', { tamanho: 9.5, estilo: 'bold', cor: [95, 94, 90] });
+      texto(st.obs, { tamanho: 10 });
+    }
+
+    if (s.extra) {
+      s.extra.forEach((label, ei) => {
+        if (!st.extra[ei]) return;
+        y += 1.5;
+        texto(label + ':', { tamanho: 9.5, estilo: 'bold', cor: [95, 94, 90] });
+        texto(st.extra[ei], { tamanho: 10 });
+      });
+    }
+
+    if (st.photos.length) {
+      y += 3;
+      texto('Fotos (' + st.photos.length + '):', { tamanho: 9.5, estilo: 'bold', cor: [95, 94, 90] });
+      y += 1;
+      const COLS = 3, GAP = 5, ALTURA_MAX = 55;
+      const cel = (LARGURA - GAP * (COLS - 1)) / COLS;
+
+      // Mede antes de desenhar: a legenda de todas as fotos da linha fica
+      // na mesma altura, mesmo misturando foto em pé e deitada.
+      const medidas = st.photos.map(foto => {
+        const proporcao = (foto.h || 1) / (foto.w || 1);
+        const alt = Math.min(cel * proporcao, ALTURA_MAX);
+        return { foto: foto, alt: alt, larg: alt / proporcao };
+      });
+
+      for (let inicio = 0; inicio < medidas.length; inicio += COLS) {
+        const linhaFotos = medidas.slice(inicio, inicio + COLS);
+        const alturaLinha = Math.max.apply(null, linhaFotos.map(m => m.alt));
+        espaco(alturaLinha + 7);
+        const yLinha = y;
+        linhaFotos.forEach((m, col) => {
+          const x = MARGEM + col * (cel + GAP);
+          try { doc.addImage(m.foto.dataUrl, 'JPEG', x, yLinha, m.larg, m.alt); } catch (_) {}
+          doc.setFont('helvetica', 'normal');
+          doc.setFontSize(7);
+          doc.setTextColor(136, 135, 128);
+          doc.text('foto ' + pad2(inicio + col + 1), x, yLinha + alturaLinha + 3);
+        });
+        y = yLinha + alturaLinha + 6;
+      }
+    }
+
+    divisoria();
+  });
+
+  // Rodapé
+  const totalPaginas = doc.internal.getNumberOfPages();
+  const carimbo = new Date();
+  const carimboTxt = pad2(carimbo.getDate()) + '/' + pad2(carimbo.getMonth() + 1) + '/' + carimbo.getFullYear() +
+    ' ' + pad2(carimbo.getHours()) + ':' + pad2(carimbo.getMinutes());
+  for (let p = 1; p <= totalPaginas; p++) {
+    doc.setPage(p);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(8);
+    doc.setTextColor(136, 135, 128);
+    doc.text('Gerado em ' + carimboTxt, MARGEM, 290);
+    doc.text('Página ' + p + ' de ' + totalPaginas, MARGEM + LARGURA, 290, { align: 'right' });
+  }
+
+  return doc;
+}
+
+function nomeArquivoPdf(campos){
+  return 'relatorio-inauguracao-' + slug(campos.unidade) + '-' + (campos.data || 'sem-data') + '.pdf';
+}
+
+/* ---------------------- transporte (Drive) ---------------------- */
+function chamarApi(acao, dados){
+  return fetch(URL_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'same-origin',
+    body: JSON.stringify(Object.assign({ acao: acao }, dados))
+  })
+  .then(async r => {
+    if (r.status === 401) {
+      throw new Error('Sua sessão expirou. Recarregue a página e digite o código de novo — os dados preenchidos continuam aqui até você recarregar, então gere o PDF pelo botão "Baixar PDF no aparelho" antes.');
+    }
+    const txt = await r.text();
+    let resp;
+    try { resp = JSON.parse(txt); }
+    catch (_) { throw new Error('Resposta inesperada do servidor.'); }
+    if (!resp.ok) throw new Error(resp.erro || 'Falha no servidor');
+    return resp;
+  });
+}
+
+/* ---------------------- status ---------------------- */
+const statusEl = document.getElementById('status');
+const statusMsg = statusEl.querySelector('.msg');
+const statusBar = statusEl.querySelector('.bar > div');
+
+function status(texto, progresso, tipo){
+  statusEl.style.display = 'block';
+  statusEl.className = tipo || '';
+  statusMsg.innerHTML = texto;
+  statusBar.style.width = Math.round((progresso || 0) * 100) + '%';
+}
+
+/* ---------------------- envio ---------------------- */
+const btnEnviar = document.getElementById('btn-enviar');
+
+btnEnviar.addEventListener('click', async () => {
+  const campos = lerCampos();
+
+  const faltando = [];
+  [['unidade','f-unidade'], ['resp','f-resp'], ['data','f-data']].forEach(([chave, id]) => {
+    const el = document.getElementById(id);
+    const vazio = !campos[chave];
+    el.classList.toggle('invalid', vazio);
+    if (vazio) faltando.push(chave === 'resp' ? 'responsável' : chave);
+  });
+  if (faltando.length) {
+    status('Preencha antes de enviar: ' + faltando.join(', ') + '.', 0, 'erro');
+    document.querySelector('.setup').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  btnEnviar.disabled = true;
+  const fotos = [];
+  SECTIONS.forEach((s, si) => {
+    state[s.id].photos.forEach((foto, pi) => {
+      fotos.push({
+        nome: pad2(si + 1) + '-' + slug(s.title.replace(/^\d+\.\s*/, '')) + '-' + pad2(pi + 1) + '.jpg',
+        dataUrl: foto.dataUrl
+      });
+    });
+  });
+  const passos = fotos.length + 2;
+  let passo = 0;
+  const avanca = () => ++passo / passos;
+
+  try {
+    status('Gerando o PDF...', 0.02);
+    const doc = gerarPdf(campos);
+    const pdfBase64 = doc.output('datauristring');
+
+    status('Criando a pasta da unidade no Drive...', avanca());
+    const inicio = await chamarApi('iniciar', {
+      unidade: campos.unidade,
+      responsavel: campos.resp,
+      data: campos.data,
+      nota: campos.nota,
+      totalFotos: fotos.length
+    });
+
+    for (let i = 0; i < fotos.length; i++) {
+      status('Enviando foto ' + (i + 1) + ' de ' + fotos.length + '...', avanca());
+      await chamarApi('foto', {
+        pastaFotosId: inicio.pastaFotosId,
+        nome: fotos[i].nome,
+        dataUrl: fotos[i].dataUrl
+      });
+    }
+
+    status('Enviando o relatório em PDF...', avanca());
+    await chamarApi('pdf', {
+      pastaVisitaId: inicio.pastaVisitaId,
+      nome: nomeArquivoPdf(campos),
+      dataUrl: pdfBase64
+    });
+
+    status(
+      'Enviado com sucesso — ' + fotos.length + ' foto(s) + PDF.<br>' +
+      '<a href="' + inicio.pastaVisitaUrl + '" target="_blank" rel="noopener">Abrir a pasta no Drive</a>',
+      1, 'ok'
+    );
+    try { localStorage.removeItem(CHAVE_RASCUNHO); } catch (_) {}
+  } catch (err) {
+    status(
+      'Não foi possível enviar: ' + err.message + '<br>' +
+      'Os dados continuam preenchidos. Verifique a internet e tente de novo, ou use "Baixar PDF no aparelho".',
+      0, 'erro'
+    );
+  } finally {
+    btnEnviar.disabled = false;
+  }
+});
+
+/* ---------------------- baixar PDF local ---------------------- */
+document.getElementById('btn-baixar').addEventListener('click', () => {
+  const campos = lerCampos();
+  try {
+    gerarPdf(campos).save(nomeArquivoPdf(campos));
+  } catch (err) {
+    status('Não consegui gerar o PDF: ' + err.message, 0, 'erro');
+  }
+});
+
+/* ---------------------- prévia na tela ---------------------- */
+document.getElementById('btn-gerar').addEventListener('click', () => {
+  const campos = lerCampos();
+  const unidade = campos.unidade || '(não informado)';
+  const resp = campos.resp || '(não informado)';
+  const data = campos.data ? dataExtenso(campos.data) : '(não informado)';
+  const nota = campos.nota || '(não informado)';
+
+  let html = '<div style="font-weight:600; font-size:16px; margin-bottom:12px;">Relatório de inauguração — ' + unidade + '</div>';
+  html += '<div style="font-size:13px; color:var(--text-secondary); margin-bottom:16px;">Data: ' + data + ' • Responsável: ' + resp + ' • Nota geral: ' + nota + '</div>';
+
+  SECTIONS.forEach(s => {
+    const st = state[s.id];
+    const done = st.checks.filter(Boolean).length;
+    html += '<div class="report-section">';
+    html += '<div style="font-weight:600; font-size:14px; margin-bottom:6px;">' + s.title + ' <span style="color:var(--text-secondary); font-weight:400;">(' + done + '/' + s.items.length + ')</span></div>';
+    s.items.forEach((item,i) => {
+      const color = st.checks[i] ? 'var(--text-secondary)' : 'var(--text-danger)';
+      const mark = st.checks[i] ? '✓' : '✗';
+      html += '<div class="report-item" style="color:' + color + ';">' + mark + ' ' + item + '</div>';
+    });
+    if (st.obs) html += '<div style="font-size:13px; margin-top:8px;"><span style="color:var(--text-secondary);">Obs:</span> ' + st.obs + '</div>';
+    if (s.extra) s.extra.forEach((label, ei) => {
+      if (st.extra[ei]) html += '<div style="font-size:13px; margin-top:6px;"><span style="color:var(--text-secondary);">' + label + ':</span> ' + st.extra[ei] + '</div>';
+    });
+    if (st.photos.length) {
+      html += '<div class="photo-grid">';
+      st.photos.forEach(foto => { html += '<img src="' + foto.dataUrl + '">'; });
+      html += '</div>';
+    }
+    html += '</div>';
+  });
+
+  const total = totalFotos();
+  html += '<div style="font-size:12px; color:var(--text-muted); margin-top:8px;">' + total + ' foto' + (total===1?'':'s') + ' anexada' + (total===1?'':'s') + ' no total.</div>';
+  html += '<button class="print-btn" onclick="window.print()">🖨 Imprimir</button>';
+
+  const reportEl = document.getElementById('report');
+  reportEl.innerHTML = html;
+  reportEl.style.display = 'block';
+  reportEl.scrollIntoView({behavior:'smooth', block:'start'});
+});
+
+/* ---------------------- boot ---------------------- */
+carregarRascunho();
+if (!document.getElementById('f-data').value) {
+  const hoje = new Date();
+  document.getElementById('f-data').value = hoje.getFullYear() + '-' + pad2(hoje.getMonth()+1) + '-' + pad2(hoje.getDate());
+}
+['f-unidade','f-resp','f-data','f-nota'].forEach(id => {
+  document.getElementById(id).addEventListener('input', salvarRascunho);
+});
+render();
+</script>
+</body>
+</html>

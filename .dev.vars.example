@@ -1,0 +1,14 @@
+# Modelo para desenvolvimento local com `npx wrangler pages dev public`.
+# Copie para .dev.vars e preencha. O .dev.vars está no .gitignore — nunca versione.
+# Em produção, estes valores vão como SECRETS no painel da Cloudflare Pages,
+# não como variáveis de texto simples.
+
+CODIGO_ACESSO=000000
+SESSAO_SEGREDO=gere-com-openssl-rand-hex-32
+APPS_SCRIPT_URL=https://script.google.com/macros/s/SEU_ID/exec
+APPS_SCRIPT_SEGREDO=o-mesmo-valor-do-SEGREDO-no-Codigo.gs
+
+# Opcionais (têm padrão no código)
+SESSAO_HORAS=12
+MAX_TENTATIVAS=8
+JANELA_SEGUNDOS=900
